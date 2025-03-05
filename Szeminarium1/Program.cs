@@ -107,7 +107,7 @@ namespace Szeminarium1
             uint vao = Gl.GenVertexArray();
             Gl.BindVertexArray(vao);
 
-            float[] vertexArray = new float[] {
+            float[] vertexArray = new double[] {
                 -0.5f, -0.5f, 0.0f,
                 +0.5f, -0.5f, 0.0f,
                  0.0f, +0.5f, 0.0f,
