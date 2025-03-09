@@ -117,7 +117,7 @@ namespace Szeminarium1
                 0.0f, -0.25f, 0.0f, //3
                -0.5f, -0.75f, 0.0f, //4
                 0.0f, -1.0f,  0.0f, //5
-                0.5f,  0.75f, 0.0f //6
+                0.5f, -0.75f, 0.0f //6
 
 
             };
@@ -134,7 +134,11 @@ namespace Szeminarium1
                 0, 3, 2,
 
                 4, 2, 3,
-                4, 5, 3
+                4, 5, 3,
+
+                6, 0, 3,
+                6, 5, 3
+
             };
 
             uint vertices = Gl.GenBuffer();
