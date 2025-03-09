@@ -113,8 +113,13 @@ namespace Szeminarium1
             float[] vertexArray = new float[] {
                 0.5f,  0.0f,  0.0f, //0
                 0.0f,  0.25f, 0.0f, //1
-                -0.5f, 0.0f,  0.0f, //2
-                0.0f, -0.25f, 0.0f  //3
+               -0.5f,  0.0f,  0.0f, //2
+                0.0f, -0.25f, 0.0f, //3
+               -0.5f, -0.75f, 0.0f, //4
+                0.0f, -1.0f,  0.0f, //5
+                0.5f,  0.75f, 0.0f //6
+
+
             };
 
             float[] colorArray = new float[] {
@@ -126,7 +131,10 @@ namespace Szeminarium1
 
             uint[] indexArray = new uint[] {
                 0, 1, 2,
-                0, 3, 2
+                0, 3, 2,
+
+                4, 2, 3,
+                4, 5, 3
             };
 
             uint vertices = Gl.GenBuffer();
