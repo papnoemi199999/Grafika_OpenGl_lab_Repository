@@ -155,8 +155,12 @@ namespace Szeminarium1
 
                    0.2833f,  0.8333f,  0.0000f,
                    0.0000f,  1.0000f,  0.0000f,
-                   0.2833f,  0.8333f,  0.0000f,
-                   0.2833f,  0.8333f,  0.0000f,
+                  -0.2833f,  0.8333f,  0.0000f,
+                   0.0000f,  0.6666f,  0.0000f,
+                  
+
+               
+
 
 
 
@@ -240,7 +244,6 @@ namespace Szeminarium1
 
 
 
-
             };
 
             uint[] indexArray = new uint[] {
@@ -270,6 +273,7 @@ namespace Szeminarium1
 
                 32, 33, 34,
                 32, 35, 34,
+
             };
 
             uint vertices = Gl.GenBuffer();
