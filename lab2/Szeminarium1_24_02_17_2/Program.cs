@@ -80,6 +80,7 @@ namespace Szeminarium1_24_02_17_2
             //Console.WriteLine("Load");
 
             // set up input handling
+
             IInputContext inputContext = window.CreateInput();
             foreach (var keyboard in inputContext.Keyboards)
             {
@@ -87,7 +88,7 @@ namespace Szeminarium1_24_02_17_2
             }
 
             Gl = window.CreateOpenGL();
-            Gl.ClearColor(System.Drawing.Color.White);
+            Gl.ClearColor(1.0f, 0.85f, 0.85f, 1.0f);
 
             SetUpObjects();
 
@@ -185,6 +186,13 @@ namespace Szeminarium1_24_02_17_2
         }
         private static unsafe void DrawRubicCube()
         {
+            float[] red = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
+            float[] green = new float[] { 0.0f, 1.0f, 0.0f, 1.0f };
+            float[] blue = new float[] { 0.0f, 0.0f, 1.0f, 1.0f };
+            float[] white = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
+            float[] orange = new float[] { 1.0f, 0.5f, 0.0f, 1.0f };
+            float[] yellow = new float[] { 1.0f, 1.0f, 0.0f, 1.0f };
+
             float spacing = 1.1f;
 
             for(int x = -1; x <= 1; x ++)
@@ -197,13 +205,12 @@ namespace Szeminarium1_24_02_17_2
                         var modelMatrixRubicCube = Matrix4X4.CreateTranslation(new Vector3D<float>(x * spacing, y * spacing, z * spacing));
                         SetModelMatrix(modelMatrixRubicCube);
 
-                        float[] face1Color = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
-                        float[] face2Color = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
-                        float[] face3Color = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
-                        float[] face4Color = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
-                        float[] face5Color = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
-                        float[] face6Color = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
-                        float[] face7Color = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
+                        float[] face1Color = red;
+                        float[] face2Color = green;
+                        float[] face3Color = blue;
+                        float[] face4Color = white;
+                        float[] face5Color = orange;
+                        float[] face6Color = yellow;
 
                         // creating cubes with the colors
                         glCubeCentered = GlCube.CreateCubeWithFaceColors(Gl, face1Color, face2Color, face3Color, face4Color, face5Color, face6Color);
