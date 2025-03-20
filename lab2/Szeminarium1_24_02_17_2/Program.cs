@@ -180,16 +180,41 @@ namespace Szeminarium1_24_02_17_2
             SetViewMatrix();
             SetProjectionMatrix();
 
-            DrawPulsingCenterCube();
+            DrawRubicCube();
 
         }
-        private static unsafe void DrawPulsingCenterCube()
+        private static unsafe void DrawRubicCube()
         {
-            var modelMatrixForCenterCube = Matrix4X4.CreateScale((float)cubeArrangementModel.CenterCubeScale);
-            SetModelMatrix(modelMatrixForCenterCube);
-            Gl.BindVertexArray(glCubeCentered.Vao);
-            Gl.DrawElements(GLEnum.Triangles, glCubeCentered.IndexArrayLength, GLEnum.UnsignedInt, null);
-            Gl.BindVertexArray(0);
+            float spacing = 1.1f;
+
+            for(int x = -1; x <= 1; x ++)
+            {
+                for(int y = -1; y <= 1; y ++)
+                {
+                    for (int z = -1; z <= 1; z++)
+                    {
+                        // Push matrix to the correct position
+                        var modelMatrixRubicCube = Matrix4X4.CreateTranslation(new Vector3D<float>(x * spacing, y * spacing, z * spacing));
+                        SetModelMatrix(modelMatrixRubicCube);
+
+                        float[] face1Color = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
+                        float[] face2Color = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
+                        float[] face3Color = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
+                        float[] face4Color = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
+                        float[] face5Color = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
+                        float[] face6Color = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
+                        float[] face7Color = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
+
+                        // creating cubes with the colors
+                        glCubeCentered = GlCube.CreateCubeWithFaceColors(Gl, face1Color, face2Color, face3Color, face4Color, face5Color, face6Color);
+
+                        Gl.BindVertexArray(glCubeCentered.Vao);
+                        Gl.DrawElements(GLEnum.Triangles, glCubeCentered.IndexArrayLength, GLEnum.UnsignedInt, null);
+                        Gl.BindVertexArray(0);
+                    }
+                }
+            }
+         
         }
 
         private static unsafe void SetModelMatrix(Matrix4X4<float> modelMatrix)
