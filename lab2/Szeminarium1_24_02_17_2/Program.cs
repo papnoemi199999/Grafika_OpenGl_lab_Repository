@@ -214,6 +214,9 @@ namespace Szeminarium1_24_02_17_2
                         float[] face5Color = black;
                         float[] face6Color = black;
 
+                        if (y == 1) face1Color = red;
+                        if (y == -1) face4Color = orange;
+
                         // creating cubes with the colors
                         glCubeCentered = GlCube.CreateCubeWithFaceColors(Gl, face1Color, face2Color, face3Color, face4Color, face5Color, face6Color);
 
