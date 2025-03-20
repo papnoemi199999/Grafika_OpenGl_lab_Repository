@@ -77,15 +77,17 @@ namespace Szeminarium1_24_02_17_2
 
         private static void Window_Load()
         {
+            //// interactive camera 
             //Console.WriteLine("Load");
 
-            // set up input handling
+            ////set up input handling
 
-            IInputContext inputContext = window.CreateInput();
-            foreach (var keyboard in inputContext.Keyboards)
-            {
-                keyboard.KeyDown += Keyboard_KeyDown;
-            }
+            //IInputContext inputContext = window.CreateInput();
+            //foreach (var keyboard in inputContext.Keyboards)
+            //{
+            //    keyboard.KeyDown += Keyboard_KeyDown;
+            //}
+            ////
 
             Gl = window.CreateOpenGL();
             Gl.ClearColor(1.0f, 0.85f, 0.85f, 1.0f);
@@ -233,7 +235,6 @@ namespace Szeminarium1_24_02_17_2
                         if (x == -1 && z == 0) face3Color = yellow;
                         if (x == -1 && z == 1) face3Color = yellow;
 
-
                         // creating cubes with the colors
                         glCubeCentered = GlCube.CreateCubeWithFaceColors(Gl, face1Color, face2Color, face3Color, face4Color, face5Color, face6Color);
 
@@ -297,9 +298,19 @@ namespace Szeminarium1_24_02_17_2
 
         private static unsafe void SetViewMatrix()
         {
-            var viewMatrix = Matrix4X4.CreateLookAt(cameraDescriptor.Position, cameraDescriptor.Target, cameraDescriptor.UpVector);
+
+            // fixed camera
+            var fixedPosition = new Vector3D<float>(5.0f, 5.0f, 5.0f); // camera position
+            var fixedTarget = new Vector3D<float>(0.0f, 0.0f, 0.0f); // cube position
+            var fixedUpVector = new Vector3D<float>(0.0f, 1.0f, 0.0f); // camera position - upwards
+
+            var viewMatrix = Matrix4X4.CreateLookAt(fixedPosition, fixedTarget, fixedUpVector);
             int location = Gl.GetUniformLocation(program, ViewMatrixVariableName);
 
+            //// interactive camera
+            //var viewMatrix = Matrix4X4.CreateLookAt(cameraDescriptor.Position, cameraDescriptor.Target, cameraDescriptor.UpVector);
+            //int location = Gl.GetUniformLocation(program, ViewMatrixVariableName);
+            ////
             if (location == -1)
             {
                 throw new Exception($"{ViewMatrixVariableName} uniform not found on shader.");
