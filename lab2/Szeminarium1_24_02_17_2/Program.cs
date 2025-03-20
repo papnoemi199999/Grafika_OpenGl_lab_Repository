@@ -217,6 +217,11 @@ namespace Szeminarium1_24_02_17_2
                         if (y == 1) face1Color = red;
                         if (y == -1) face4Color = orange;
 
+                        if (x == 0 && z == 1) face2Color = blue;
+                        if (x == 1 && z == 1) face2Color = blue;
+                        if (x == -1 && z == 1) face2Color = blue;
+
+
                         // creating cubes with the colors
                         glCubeCentered = GlCube.CreateCubeWithFaceColors(Gl, face1Color, face2Color, face3Color, face4Color, face5Color, face6Color);
 
