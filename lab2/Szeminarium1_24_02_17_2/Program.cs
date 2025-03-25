@@ -1,5 +1,6 @@
 ﻿using Silk.NET.Input;
 using Silk.NET.Maths;
+using Silk.NET.OpenAL;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 
@@ -7,6 +8,15 @@ namespace Szeminarium1_24_02_17_2
 {
     internal static class Program
     {
+        private static float upperLayerRotationAngle = 0.0f;
+        private static float currentRotationAngle = 0.0f;
+        private static float rotationSpeed = 1f;
+        private static float targetRotationAngle = 90f;
+        private static bool isRotating = false;
+        private static float rotationProgress = 0.0f;
+
+
+
         private static CameraDescriptor cameraDescriptor = new();
 
         private static CubeArrangementModel cubeArrangementModel = new();
@@ -18,6 +28,8 @@ namespace Szeminarium1_24_02_17_2
         private static uint program;
 
         private static GlCube glCubeCentered;
+
+
 
         private static GlCube glCubeRotating;
 
@@ -77,17 +89,17 @@ namespace Szeminarium1_24_02_17_2
 
         private static void Window_Load()
         {
-            //// interactive camera 
-            //Console.WriteLine("Load");
+            // interactive camera 
+            Console.WriteLine("Load");
 
-            ////set up input handling
+            //set up input handling
 
-            //IInputContext inputContext = window.CreateInput();
-            //foreach (var keyboard in inputContext.Keyboards)
-            //{
-            //    keyboard.KeyDown += Keyboard_KeyDown;
-            //}
-            ////
+            IInputContext inputContext = window.CreateInput();
+            foreach (var keyboard in inputContext.Keyboards)
+            {
+                keyboard.KeyDown += Keyboard_KeyDown;
+            }
+            //
 
             Gl = window.CreateOpenGL();
             Gl.ClearColor(1.0f, 0.85f, 0.85f, 1.0f);
@@ -155,17 +167,33 @@ namespace Szeminarium1_24_02_17_2
                     cameraDescriptor.DecreaseZXAngle();
                     break;
                 case Key.Space:
-                    cubeArrangementModel.AnimationEnabeld = !cubeArrangementModel.AnimationEnabeld;
+                    if (!isRotating) // Ha nem forog éppen
+                    {
+                        isRotating = true; // Forgatás elindítása
+                        rotationProgress = 0.0f; // Reseteljük az előrehaladást
+                    }
+                    break;
+                case Key.Backspace:
+                    upperLayerRotationAngle -= 90.0f;
+                    upperLayerRotationAngle %= 360;
                     break;
             }
         }
 
         private static void Window_Update(double deltaTime)
         {
-            //Console.WriteLine($"Update after {deltaTime} [s].");
-            // multithreaded
-            // make sure it is threadsafe
-            // NO GL calls
+            if (isRotating)
+            {
+                rotationProgress += rotationSpeed; // Növeljük az előrehaladást
+                if (rotationProgress >= targetRotationAngle) // Ha elérte a 90 fokot
+                {
+                    // Frissítjük a felső réteg forgatási szögét
+                    upperLayerRotationAngle += targetRotationAngle;
+                    rotationProgress = 0.0f; // Reseteljük az előrehaladást
+                    isRotating = false; // Forgatás befejezve
+                }
+            }
+
             cubeArrangementModel.AdvanceTime(deltaTime);
         }
 
@@ -199,14 +227,18 @@ namespace Szeminarium1_24_02_17_2
 
             float spacing = 1.1f;
 
-            for(int x = -1; x <= 1; x ++)
+            for (int x = -1; x <= 1; x++)
             {
-                for(int y = -1; y <= 1; y ++)
+                for (int y = -1; y <= 1; y++)
                 {
                     for (int z = -1; z <= 1; z++)
                     {
                         // Push matrix to the correct position
                         var modelMatrixRubicCube = Matrix4X4.CreateTranslation(new Vector3D<float>(x * spacing, y * spacing, z * spacing));
+                        if (y == 1)
+                        {
+                            modelMatrixRubicCube = modelMatrixRubicCube * Matrix4X4.CreateRotationY(MathF.PI / 180 * (isRotating ? rotationProgress : upperLayerRotationAngle));
+                        }
                         SetModelMatrix(modelMatrixRubicCube);
 
                         float[] face1Color = black;
@@ -244,12 +276,12 @@ namespace Szeminarium1_24_02_17_2
                     }
                 }
             }
-         
+
         }
 
         private static unsafe void SetModelMatrix(Matrix4X4<float> modelMatrix)
         {
-            
+
             int location = Gl.GetUniformLocation(program, ModelMatrixVariableName);
             if (location == -1)
             {
@@ -272,11 +304,11 @@ namespace Szeminarium1_24_02_17_2
 
             glCubeCentered = GlCube.CreateCubeWithFaceColors(Gl, face1Color, face2Color, face3Color, face4Color, face5Color, face6Color);
 
-          
+
         }
 
-        
 
+        //probald megcserelni a sorrendet a materix szorzasnal!!!!!!!!!!!!!!!!!!!!!!!
         private static void Window_Closing()
         {
             glCubeCentered.ReleaseGlCube();
@@ -299,18 +331,18 @@ namespace Szeminarium1_24_02_17_2
         private static unsafe void SetViewMatrix()
         {
 
-            // fixed camera
-            var fixedPosition = new Vector3D<float>(5.0f, 5.0f, 5.0f); // camera position
-            var fixedTarget = new Vector3D<float>(0.0f, 0.0f, 0.0f); // cube position
-            var fixedUpVector = new Vector3D<float>(0.0f, 1.0f, 0.0f); // camera position - upwards
+            //// fixed camera
+            //var fixedPosition = new Vector3D<float>(5.0f, 5.0f, 5.0f); // camera position
+            //var fixedTarget = new Vector3D<float>(0.0f, 0.0f, 0.0f); // cube position
+            //var fixedUpVector = new Vector3D<float>(0.0f, 1.0f, 0.0f); h// camera position - upwards
 
-            var viewMatrix = Matrix4X4.CreateLookAt(fixedPosition, fixedTarget, fixedUpVector);
-            int location = Gl.GetUniformLocation(program, ViewMatrixVariableName);
-
-            //// interactive camera
-            //var viewMatrix = Matrix4X4.CreateLookAt(cameraDescriptor.Position, cameraDescriptor.Target, cameraDescriptor.UpVector);
+            //var viewMatrix = Matrix4X4.CreateLookAt(fixedPosition, fixedTarget, fixedUpVector);
             //int location = Gl.GetUniformLocation(program, ViewMatrixVariableName);
-            ////
+
+            // interactive camera
+            var viewMatrix = Matrix4X4.CreateLookAt(cameraDescriptor.Position, cameraDescriptor.Target, cameraDescriptor.UpVector);
+            int location = Gl.GetUniformLocation(program, ViewMatrixVariableName);
+            //
             if (location == -1)
             {
                 throw new Exception($"{ViewMatrixVariableName} uniform not found on shader.");
