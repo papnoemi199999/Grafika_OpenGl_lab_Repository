@@ -18,9 +18,13 @@ namespace Szeminarium1_24_02_17_2
         public uint Indices { get; }
         public uint IndexArrayLength { get; }
 
+        public float PosX { get; set; }
+        public float PosY { get; set; }
+        public float PosZ { get; set; }
+
         private GL Gl;
 
-        private GlCube(uint vao, uint vertices, uint colors, uint indeces, uint indexArrayLength, GL gl)
+        private GlCube(uint vao, uint vertices, uint colors, uint indeces, uint indexArrayLength, GL gl, float posX, float posY, float posZ)
         {
             this.Vao = vao;
             this.Vertices = vertices;
@@ -28,9 +32,13 @@ namespace Szeminarium1_24_02_17_2
             this.Indices = indeces;
             this.IndexArrayLength = indexArrayLength;
             this.Gl = gl;
+
+            this.PosX = posX;
+            this.PosY = posY;
+            this.PosZ = posZ;
         }
 
-        public static unsafe GlCube CreateCubeWithFaceColors(GL Gl, float[] face1Color, float[] face2Color, float[] face3Color, float[] face4Color, float[] face5Color, float[] face6Color)
+        public static unsafe GlCube CreateCubeWithFaceColors(GL Gl, float[] face1Color, float[] face2Color, float[] face3Color, float[] face4Color, float[] face5Color, float[] face6Color, float posX, float posY, float posZ)
         {
             uint vao = Gl.GenVertexArray();
             Gl.BindVertexArray(vao);
@@ -145,7 +153,7 @@ namespace Szeminarium1_24_02_17_2
             Gl.BindBuffer(GLEnum.ArrayBuffer, 0);
             uint indexArrayLength = (uint)indexArray.Length;
 
-            return new GlCube(vao, vertices, colors, indices, indexArrayLength, Gl);
+            return new GlCube(vao, vertices, colors, indices, indexArrayLength, Gl, posX, posY, posZ);
         }
 
         internal void ReleaseGlCube()
