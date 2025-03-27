@@ -8,6 +8,10 @@ namespace Szeminarium1_24_02_17_2
 {
     internal static class Program
     {
+        private static List<GlCube> rubiksCube = new List<GlCube>();
+
+       
+
         private static float upperLayerRotationAngle = 0.0f;
         private static float currentRotationAngle = 0.0f;
         private static float rotationSpeed = 1f;
@@ -86,6 +90,7 @@ namespace Szeminarium1_24_02_17_2
 
             window.Run();
         }
+
 
         private static void Window_Load()
         {
@@ -166,34 +171,13 @@ namespace Szeminarium1_24_02_17_2
                 case Key.D:
                     cameraDescriptor.DecreaseZXAngle();
                     break;
-                case Key.Space:
-                    if (!isRotating) // Ha nem forog éppen
-                    {
-                        isRotating = true; // Forgatás elindítása
-                        rotationProgress = 0.0f; // Reseteljük az előrehaladást
-                    }
-                    break;
-                case Key.Backspace:
-                    upperLayerRotationAngle -= 90.0f;
-                    upperLayerRotationAngle %= 360;
-                    break;
+
             }
         }
 
         private static void Window_Update(double deltaTime)
         {
-            if (isRotating)
-            {
-                rotationProgress += rotationSpeed; // Növeljük az előrehaladást
-                if (rotationProgress >= targetRotationAngle) // Ha elérte a 90 fokot
-                {
-                    // Frissítjük a felső réteg forgatási szögét
-                    upperLayerRotationAngle += targetRotationAngle;
-                    rotationProgress = 0.0f; // Reseteljük az előrehaladást
-                    isRotating = false; // Forgatás befejezve
-                }
-            }
-
+         
             cubeArrangementModel.AdvanceTime(deltaTime);
         }
 
@@ -216,65 +200,16 @@ namespace Szeminarium1_24_02_17_2
         }
         private static unsafe void DrawRubicCube()
         {
-            float[] red = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
-            float[] green = new float[] { 0.0f, 1.0f, 0.0f, 1.0f };
-            float[] blue = new float[] { 0.0f, 0.0f, 1.0f, 1.0f };
-            float[] white = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
-            float[] orange = new float[] { 1.0f, 0.5f, 0.0f, 1.0f };
-            float[] yellow = new float[] { 1.0f, 1.0f, 0.0f, 1.0f };
-
-            float[] black = new float[] { 0.0f, 0.0f, 0.0f, 1.0f };
-
             float spacing = 1.1f;
-
-            for (int x = -1; x <= 1; x++)
+            foreach (var cube in rubiksCube)
             {
-                for (int y = -1; y <= 1; y++)
-                {
-                    for (int z = -1; z <= 1; z++)
-                    {
-                        // Push matrix to the correct position
-                        var modelMatrixRubicCube = Matrix4X4.CreateTranslation(new Vector3D<float>(x * spacing, y * spacing, z * spacing));
-                        if (y == 1)
-                        {
-                            modelMatrixRubicCube = modelMatrixRubicCube * Matrix4X4.CreateRotationY(MathF.PI / 180 * (isRotating ? rotationProgress : upperLayerRotationAngle));
-                        }
-                        SetModelMatrix(modelMatrixRubicCube);
+                Matrix4X4<float> modelMatrixRubicCube = Matrix4X4.CreateTranslation(new Vector3D<float>(cube.PosX * spacing, cube.PosY * spacing, cube.PosZ * spacing));
 
-                        float[] face1Color = black;
-                        float[] face2Color = black;
-                        float[] face3Color = black;
-                        float[] face4Color = black;
-                        float[] face5Color = black;
-                        float[] face6Color = black;
+                SetModelMatrix(modelMatrixRubicCube);
 
-                        if (y == 1) face1Color = red;
-                        if (y == -1) face4Color = orange;
-
-                        if (x == 0 && z == 1) face2Color = blue;
-                        if (x == 1 && z == 1) face2Color = blue;
-                        if (x == -1 && z == 1) face2Color = blue;
-
-                        if (x == 1 && z == -1) face5Color = green;
-                        if (x == 0 && z == -1) face5Color = green;
-                        if (x == -1 && z == -1) face5Color = green;
-
-                        if (x == 1 && z == -1) face6Color = white;
-                        if (x == 1 && z == 0) face6Color = white;
-                        if (x == 1 && z == 1) face6Color = white;
-
-                        if (x == -1 && z == -1) face3Color = yellow;
-                        if (x == -1 && z == 0) face3Color = yellow;
-                        if (x == -1 && z == 1) face3Color = yellow;
-
-                        // creating cubes with the colors
-                        glCubeCentered = GlCube.CreateCubeWithFaceColors(Gl, face1Color, face2Color, face3Color, face4Color, face5Color, face6Color);
-
-                        Gl.BindVertexArray(glCubeCentered.Vao);
-                        Gl.DrawElements(GLEnum.Triangles, glCubeCentered.IndexArrayLength, GLEnum.UnsignedInt, null);
-                        Gl.BindVertexArray(0);
-                    }
-                }
+                Gl.BindVertexArray(cube.Vao);
+                Gl.DrawElements(GLEnum.Triangles, cube.IndexArrayLength, GLEnum.UnsignedInt, null);
+                Gl.BindVertexArray(0);
             }
 
         }
@@ -295,19 +230,59 @@ namespace Szeminarium1_24_02_17_2
         private static unsafe void SetUpObjects()
         {
 
-            float[] face1Color = [1.0f, 0.0f, 0.0f, 1.0f];
-            float[] face2Color = [0.0f, 1.0f, 0.0f, 1.0f];
-            float[] face3Color = [0.0f, 0.0f, 1.0f, 1.0f];
-            float[] face4Color = [1.0f, 0.0f, 1.0f, 1.0f];
-            float[] face5Color = [0.0f, 1.0f, 1.0f, 1.0f];
-            float[] face6Color = [1.0f, 1.0f, 0.0f, 1.0f];
+            float[] red = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
+            float[] green = new float[] { 0.0f, 1.0f, 0.0f, 1.0f };
+            float[] blue = new float[] { 0.0f, 0.0f, 1.0f, 1.0f };
+            float[] white = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
+            float[] orange = new float[] { 1.0f, 0.5f, 0.0f, 1.0f };
+            float[] yellow = new float[] { 1.0f, 1.0f, 0.0f, 1.0f };
 
-            glCubeCentered = GlCube.CreateCubeWithFaceColors(Gl, face1Color, face2Color, face3Color, face4Color, face5Color, face6Color);
+            float[] black = new float[] { 0.0f, 0.0f, 0.0f, 1.0f };
 
+            // Y = 1
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, red, black, black, black, white, black, 0f, 1f, -1f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, red, black, black, black, white, blue, 1f, 1f, -1f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, red, black, green, black, white, black, -1f, 1f, -1f));
+
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, red, black, black, black, black, black, 0f, 1f, 0f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, red, black, black, black, black, blue, 1f, 1f, 0f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, red, black, green, black, black, black, -1f, 1f, 0f));
+
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, red, yellow, black, black, black, black, 0f, 1f, 1f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, red, yellow, black, black, black, blue, 1f, 1f, 1f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, red, yellow, green, black, black, black, -1f, 1f, 1f));
+
+
+            // Y = 0
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, black, black, black, white, black, 0f, 0f, -1f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, black, black, black, white, blue, 1f, 0f, -1f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, black, green, black, white, black, -1f, 0f, -1f));
+
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, black, black, black, black, black, 0f, 0f, 0f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, black, black, black, black, blue, 1f, 0f, 0f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, black, green, black, black, black, -1f, 0f, 0f));
+
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, yellow, black, black, black, black, 0f, 0f, 1f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, yellow, black, black, black, blue, 1f, 0f, 1f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, yellow, green, black, black, black, -1f, 0f, 1f));
+
+
+            // Y = -1
+
+            // Y = -1
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, black, black, orange, white, black, 0f, -1f, -1f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, black, black, orange, white, blue, 1f, -1f, -1f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, black, green, orange, white, black, -1f, -1f, -1f));
+
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, black, black, orange, black, black, 0f, -1f, 0f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, black, black, orange, black, blue, 1f, -1f, 0f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, black, green, orange, black, black, -1f, -1f, 0f));
+
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, yellow, black, orange, black, black, 0f, -1f, 1f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, yellow, black, orange, black, blue, 1f, -1f, 1f));
+            rubiksCube.Add(GlCube.CreateCubeWithFaceColors(Gl, black, yellow, green, orange, black, black, -1f, -1f, 1f));
 
         }
-
-
         //probald megcserelni a sorrendet a materix szorzasnal!!!!!!!!!!!!!!!!!!!!!!!
         private static void Window_Closing()
         {
