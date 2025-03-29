@@ -22,6 +22,12 @@ namespace Szeminarium1_24_02_17_2
         public float PosY { get; set; }
         public float PosZ { get; set; }
 
+        public float TranslationX { get; set; }
+        public float TranslationY { get; set; }
+        public float TranslationZ { get; set; }
+
+
+
         private GL Gl;
 
         private GlCube(uint vao, uint vertices, uint colors, uint indeces, uint indexArrayLength, GL gl, float posX, float posY, float posZ)
@@ -36,6 +42,11 @@ namespace Szeminarium1_24_02_17_2
             this.PosX = posX;
             this.PosY = posY;
             this.PosZ = posZ;
+
+            this.TranslationX = posX;
+            this.TranslationY = posY;
+            this.TranslationZ = posZ;
+
         }
 
         public static unsafe GlCube CreateCubeWithFaceColors(GL Gl, float[] face1Color, float[] face2Color, float[] face3Color, float[] face4Color, float[] face5Color, float[] face6Color, float posX, float posY, float posZ)
