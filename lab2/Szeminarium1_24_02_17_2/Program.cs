@@ -10,17 +10,6 @@ namespace Szeminarium1_24_02_17_2
     {
         private static List<GlCube> rubiksCube = new List<GlCube>();
 
-       
-
-        private static float upperLayerRotationAngle = 0.0f;
-        private static float currentRotationAngle = 0.0f;
-        private static float rotationSpeed = 1f;
-        private static float targetRotationAngle = 90f;
-        private static bool isRotating = false;
-        private static float rotationProgress = 0.0f;
-
-
-
         private static CameraDescriptor cameraDescriptor = new();
 
         private static CubeArrangementModel cubeArrangementModel = new();
@@ -31,15 +20,14 @@ namespace Szeminarium1_24_02_17_2
 
         private static uint program;
 
-        private static GlCube glCubeCentered;
-
-
-
-        private static GlCube glCubeRotating;
-
         private const string ModelMatrixVariableName = "uModel";
         private const string ViewMatrixVariableName = "uView";
         private const string ProjectionMatrixVariableName = "uProjection";
+
+        private static double Xrot = 0;
+        private static double Yrot = 0;
+
+        private static double Speedrot = 0.1;
 
         private static readonly string VertexShaderSource = @"
         #version 330 core
@@ -117,6 +105,7 @@ namespace Szeminarium1_24_02_17_2
 
             Gl.Enable(EnableCap.DepthTest);
             Gl.DepthFunc(DepthFunction.Lequal);
+
         }
 
         private static void LinkProgram()
@@ -172,12 +161,37 @@ namespace Szeminarium1_24_02_17_2
                     cameraDescriptor.DecreaseZXAngle();
                     break;
 
+                case Key.Space:
+                    RightRotation();
+                    break;
+                case Key.Backspace:
+                    LeftRotation();
+                    break;
             }
         }
 
+        private static void RightRotation()
+        {
+            Xrot += Math.PI / 2;
+        }
+        private static void LeftRotation()
+        {
+            Xrot -= Math.PI / 2;
+        }
         private static void Window_Update(double deltaTime)
         {
-         
+            if (Xrot < 0)
+            {
+                Xrot += Speedrot;
+                Yrot -= Speedrot;
+
+            }
+            if (Xrot > 0)
+            {
+                Xrot -= Speedrot;
+                Yrot += Speedrot;
+            }
+
             cubeArrangementModel.AdvanceTime(deltaTime);
         }
 
@@ -200,23 +214,36 @@ namespace Szeminarium1_24_02_17_2
         }
         private static unsafe void DrawRubicCube()
         {
-            float spacing = 1.1f;
+            float cubeScale = (float)cubeArrangementModel.CenterCubeScale;
+            float spacing = 0.1f;
+            float scale = cubeScale + spacing;
+
+          
+
+            var scaleMatrixForCube = Matrix4X4.CreateScale((float)cubeArrangementModel.CenterCubeScale);
             foreach (var cube in rubiksCube)
             {
-                Matrix4X4<float> modelMatrixRubicCube = Matrix4X4.CreateTranslation(new Vector3D<float>(cube.PosX * spacing, cube.PosY * spacing, cube.PosZ * spacing));
-
-                SetModelMatrix(modelMatrixRubicCube);
+                Matrix4X4<float> originalModelMatrix = scaleMatrixForCube * Matrix4X4.CreateTranslation(cube.TranslationX * scale, cube.TranslationY * scale, cube.TranslationZ * scale);
+                Matrix4X4<float> rotY = Matrix4X4<float>.Identity;
+                if (Xrot != 0)
+                {
+                    if (cube.PosY == 1)
+                    {
+                        rotY = Matrix4X4.CreateRotationY((float)(Yrot));
+                    }
+                }
+             
+                Matrix4X4<float> modelMatrix = originalModelMatrix * rotY;
+                SetModelMatrix(modelMatrix);
 
                 Gl.BindVertexArray(cube.Vao);
                 Gl.DrawElements(GLEnum.Triangles, cube.IndexArrayLength, GLEnum.UnsignedInt, null);
                 Gl.BindVertexArray(0);
             }
-
         }
 
         private static unsafe void SetModelMatrix(Matrix4X4<float> modelMatrix)
         {
-
             int location = Gl.GetUniformLocation(program, ModelMatrixVariableName);
             if (location == -1)
             {
@@ -286,7 +313,10 @@ namespace Szeminarium1_24_02_17_2
         //probald megcserelni a sorrendet a materix szorzasnal!!!!!!!!!!!!!!!!!!!!!!!
         private static void Window_Closing()
         {
-            glCubeCentered.ReleaseGlCube();
+            foreach (var cube in rubiksCube)
+            {
+                cube.ReleaseGlCube();
+            }
         }
 
         private static unsafe void SetProjectionMatrix()
