@@ -7,28 +7,33 @@ uniform vec3 uViewPos;
 
 uniform float uShininess;
 
-		
+uniform float uAmbientStrength;
+uniform float uSpecularStrength;
+uniform float uDiffuseStrength;
+
 in vec4 outCol;
 in vec3 outNormal;
 in vec3 outWorldPosition;
 
 void main()
 {
-    float ambientStrength = 0.1;
-    vec3 ambient = ambientStrength * uLightColor;
+    // Ambient komponens
+    vec3 ambient = uAmbientStrength * uLightColor;
 
-    float diffuseStrength = 0.3;
+    // Diffuse komponens
     vec3 norm = normalize(outNormal);
     vec3 lightDir = normalize(uLightPos - outWorldPosition);
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * uLightColor * diffuseStrength;
+    vec3 diffuse = diff * uLightColor * uDiffuseStrength;
 
-    float specularStrength = 0.6;
+    // Specular komponens
     vec3 viewDir = normalize(uViewPos - outWorldPosition);
     vec3 reflectDir = reflect(-lightDir, norm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), uShininess);
+    vec3 specular = spec * uLightColor * uSpecularStrength;
 
-    vec3 result = (ambient + diffuse + spec) * outCol.rgb;
+    // Komponensek ossz
+    vec3 result = (ambient + diffuse + specular) * outCol.rgb;
 
     FragColor = vec4(result, outCol.w);
 }
