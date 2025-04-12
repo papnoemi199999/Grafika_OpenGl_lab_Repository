@@ -35,10 +35,15 @@ namespace GrafikaSzeminarium
 
         private const string ShinenessVariableName = "uShininess";
         private const string AmbientStrengthVariableName = "uAmbientStrength";
+        private const string SpecularStrengthVariableName = "uSpecularStrength";
+        private const string DiffuseStrengthVariableName = "uDiffuseStrength";
 
 
         private static float shininess = 50;
         private static float ambientStrength = 0.2f;
+        private static float specularStrength = 0.2f;
+        private static float difffuceStrength = 0.2f;
+
 
 
         private static uint program;
@@ -194,6 +199,8 @@ namespace GrafikaSzeminarium
             SetUniform3(ViewPositionVariableName, new Vector3(camera.Position.X, camera.Position.Y, camera.Position.Z));
             SetUniform1(ShinenessVariableName, shininess);
             SetUniform1(AmbientStrengthVariableName, ambientStrength);
+            SetUniform1(SpecularStrengthVariableName, specularStrength);
+            SetUniform1(DiffuseStrengthVariableName, difffuceStrength);
 
 
             var viewMatrix = Matrix4X4.CreateLookAt(camera.Position, camera.Target, camera.UpVector);
@@ -221,6 +228,8 @@ namespace GrafikaSzeminarium
             ImGuiNET.ImGui.Begin("Lighting", ImGuiNET.ImGuiWindowFlags.AlwaysAutoResize | ImGuiNET.ImGuiWindowFlags.NoCollapse);
             ImGuiNET.ImGui.SliderFloat("Shininess", ref shininess, 5, 100);
             ImGuiNET.ImGui.SliderFloat("Ambient Strength", ref ambientStrength, 0.0f, 1.0f);
+            ImGuiNET.ImGui.SliderFloat("Specular Strength", ref specularStrength, 0.0f, 1.0f);
+            ImGuiNET.ImGui.SliderFloat("Diffuse Strength", ref difffuceStrength, 0.0f, 1.0f);
 
             ImGuiNET.ImGui.End();
 
