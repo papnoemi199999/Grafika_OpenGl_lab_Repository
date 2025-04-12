@@ -44,6 +44,21 @@ namespace GrafikaSzeminarium
         private static float specularStrength = 0.2f;
         private static float difffuceStrength = 0.2f;
 
+        private static float lightColorR = 1f;
+        private static float lightColorG = 1f;
+        private static float lightColorB = 1f;
+
+        private static readonly (string name, Vector3 color)[] topFaceColors =
+        {
+            ("Red",    new Vector3(1f, 0f, 0f)),
+            ("Green",  new Vector3(0f, 1f, 0f)),
+            ("Blue",   new Vector3(0f, 0f, 1f)),
+            ("Yellow", new Vector3(1f, 1f, 0f)),
+            ("White",  new Vector3(1f, 1f, 1f)),
+            ("Black",  new Vector3(0f, 0f, 0f)),
+        };
+
+        private static int selectedTopColorIndex = 0;
 
 
         private static uint program;
@@ -194,13 +209,16 @@ namespace GrafikaSzeminarium
 
             Gl.UseProgram(program);
 
-            SetUniform3(LightColorVariableName, new Vector3(1f, 1f, 1f));
+            SetUniform3(LightColorVariableName, new Vector3(lightColorR, lightColorG, lightColorB));
             SetUniform3(LightPositionVariableName, new Vector3(0f, 1.2f, 0f));
             SetUniform3(ViewPositionVariableName, new Vector3(camera.Position.X, camera.Position.Y, camera.Position.Z));
             SetUniform1(ShinenessVariableName, shininess);
             SetUniform1(AmbientStrengthVariableName, ambientStrength);
             SetUniform1(SpecularStrengthVariableName, specularStrength);
             SetUniform1(DiffuseStrengthVariableName, difffuceStrength);
+
+            SetUniform3("uTopColor", topFaceColors[selectedTopColorIndex].color);
+
 
 
             var viewMatrix = Matrix4X4.CreateLookAt(camera.Position, camera.Target, camera.UpVector);
@@ -230,6 +248,27 @@ namespace GrafikaSzeminarium
             ImGuiNET.ImGui.SliderFloat("Ambient Strength", ref ambientStrength, 0.0f, 1.0f);
             ImGuiNET.ImGui.SliderFloat("Specular Strength", ref specularStrength, 0.0f, 1.0f);
             ImGuiNET.ImGui.SliderFloat("Diffuse Strength", ref difffuceStrength, 0.0f, 1.0f);
+
+            ImGuiNET.ImGui.SliderFloat("Light Color Red", ref lightColorR, 0f, 1f);
+            ImGuiNET.ImGui.SliderFloat("Light Color Green", ref lightColorG, 0f, 1f);
+            ImGuiNET.ImGui.SliderFloat("Light Color Blue", ref lightColorB, 0f, 1f);
+
+            if (ImGuiNET.ImGui.BeginCombo("Top Face Color", topFaceColors[selectedTopColorIndex].name))
+            {
+                for (int i = 0; i < topFaceColors.Length; i++)
+                {
+                    bool isSelected = (i == selectedTopColorIndex);
+                    if (ImGuiNET.ImGui.Selectable(topFaceColors[i].name, isSelected))
+                    {
+                        selectedTopColorIndex = i;
+                    }
+                    if (isSelected)
+                    {
+                        ImGuiNET.ImGui.SetItemDefaultFocus();
+                    }
+                }
+                ImGuiNET.ImGui.EndCombo();
+            }
 
             ImGuiNET.ImGui.End();
 
